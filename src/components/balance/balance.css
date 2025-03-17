@@ -8,8 +8,9 @@
   }
   
   .coinIcon {
-    margin-right: 8px; /* Отступ между иконкой и числом */
-    font-size: 28px; /* Размер иконки */
+    width: 24px; /* Размер изображения */
+    height: 24px;
+    margin-right: 8px;
   }
   
   .coinCount {
