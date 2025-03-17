@@ -1,0 +1,47 @@
+.monsterContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Центрирование по горизонтали */
+    justify-content: center; /* Центрирование по вертикали */
+  }
+
+/* Текст "Поиск..." */
+.respawnText {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 20px;
+    transition: transform 0.5s ease-in-out; /* Плавная анимация масштаба */
+  }
+  
+  /* Изображение гоблина */
+  .monsterImage {
+    width: 150px; /* Ширина изображения */
+    height: auto; /* Автоматическая высота для сохранения пропорций */
+    cursor: pointer;
+    transition: transform 0.1s ease-in-out; /* Плавная анимация */
+  }
+  
+  .monsterImage:active {
+    transform: scale(0.9) rotate(-5deg); /* Уменьшение и дерганье при нажатии */
+  }
+  
+  .monsterImage.dead {
+    filter: grayscale(100%); /* Делаем изображение черно-белым при смерти */
+    opacity: 0.5; /* Полупрозрачность */
+    cursor: default;
+  }
+  
+  /* Полоса здоровья */
+    .healthBarContainer {
+    width: 150px;
+    height: 10px;
+    background-color: #ddd; /* Фон полосы здоровья */
+    border-radius: 5px;
+    margin-top: 10px;
+    overflow: hidden;
+  }
+  
+  .healthBar {
+    height: 100%;
+    transition: width 0.3s ease-in-out, background-color 0.3s ease-in-out; /* Плавное изменение ширины и цвета */
+  }
