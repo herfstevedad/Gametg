@@ -1,5 +1,5 @@
 import { useImperativeHandle, forwardRef, useEffect, useState } from 'react';
-import './Balance.css';
+import './balance.css';
 
 export interface BalanceRef {
   addCoins: (amount: number) => void;
