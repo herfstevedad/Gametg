@@ -4,8 +4,3 @@ body {
   -webkit-touch-callout: none;
   -webkit-tap-highlight-color: transparent;
 }
-
-img {
-  user-select: none; /* Запрет выделения */
-  pointer-events: none; /* Отключение событий мыши */
-}
