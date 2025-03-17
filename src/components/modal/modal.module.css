@@ -1,0 +1,78 @@
+/* Modal.module.css */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Полупрозрачный фон */
+  display: flex;
+  justify-content: center; /* Центрирование по горизонтали */
+  align-items: flex-end; /* Окно выезжает снизу */
+  z-index: 1000; /* Чтобы окно было поверх других элементов */
+}
+
+.modalContent {
+  position: relative;
+  background-color: white; /* Фон модального окна */
+  width: calc(100% - 40px); /* Ширина с учетом отступов (20px слева и справа) */
+  max-width: 500px; /* Максимальная ширина */
+  border-radius: 20px 20px 0 0; /* Закругленные углы сверху */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Тень */
+  transform: translateY(100%); /* Начинается за пределами экрана */
+  transition: transform 0.3s ease-in-out; /* Плавная анимация */
+  display: flex;
+  flex-direction: column; /* Размещение шапки и содержимого в столбец */
+  max-height: 50vh; /* Максимальная высота */
+}
+
+  
+.modalHeader {
+  display: flex;
+  justify-content: space-between; /* Размещение заголовка и кнопки закрытия */
+  align-items: center; /* Центрирование по вертикали */
+  padding: 16px; /* Внутренние отступы */
+  border-bottom: 1px solid #ddd; /* Разделительная линия */
+  border-radius: 20px 20px 0 0; /* Закругленные углы сверху */
+  background-color: white; /* Фон шапки */
+  position: sticky; /* Фиксация шапки */
+  top: 0; /* Прилипание к верхней части окна */
+  z-index: 1; /* Чтобы шапка была поверх содержимого */
+  width: 100%; /* Шапка занимает всю ширину окна */
+  box-sizing: border-box; /* Учитываем внутренние отступы в ширине */
+}
+
+  
+.modalTitle {
+  font-size: 20px;
+  font-weight: bold;
+}
+  
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #333;
+}
+
+.modalBody {
+  padding: 16px; /* Внутренние отступы */
+  overflow-y: auto; /* Прокрутка содержимого */
+  flex-grow: 1; /* Занимает оставшееся пространство */
+  box-sizing: border-box; /* Учитываем внутренние отступы в ширине */
+}
+  
+.slideUp {
+  transform: translateY(0); /* Останавливается в зависимости от содержимого */
+}
+
+  /* Анимация выезда снизу вверх */
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}

@@ -1,8 +1,9 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { init, miniApp } from '@telegram-apps/sdk'
 
 import Balance from './components/balance/balance';
 import Monster from './components/monster/monster';
+import Modal from './components/modal/modal';
 
 import './App.css'
 
@@ -22,6 +23,7 @@ function App() {
   initializeTelegramSDK();
 
   const balanceRef = useRef<{ addCoins: (amount: number) => void } | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   const handleMonsterDeath = (droppedCoins: number) => {
     if (balanceRef.current) {
@@ -29,6 +31,13 @@ function App() {
     }
   };
 
+  const openModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
 
   return (
     <div className={'game-container'}>
@@ -36,6 +45,13 @@ function App() {
         <Balance ref={(ref) => { balanceRef.current = ref; }} />
       </div>
       <Monster onDeath={handleMonsterDeath} />
+
+      <button className={'openModalButton'} onClick={openModal}>
+        Открыть меню
+      </button>
+
+      {/* Модальное окно */}
+      {isModalOpen && <Modal onClose={closeModal} />}
     </div>
   )
 
