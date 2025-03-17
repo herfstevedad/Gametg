@@ -43,9 +43,12 @@ const Balance = forwardRef<BalanceRef>((_, ref) => {
   }));
 
   return (
-    <h2 className={"balance"}>
-      {coins} 🪙
-    </h2>
+    <div className={'balanceContainer'}>
+    {/* Иконка монеты */}
+    <span className={'coinIcon'}>🪙</span>
+    {/* Количество монет */}
+    <span className={'coinCount'}>{coins}</span>
+  </div>
   );
 });
 

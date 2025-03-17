@@ -1,6 +1,17 @@
-/* Balance.module.css */
-.balance {
+.balanceContainer {
+    display: flex; /* Размещаем элементы в строку */
+    align-items: center; /* Центрируем по вертикали */
+    justify-content: center; /* Центрируем по горизонтали */
+    font-family: Arial, sans-serif;
     font-size: 24px;
     color: #333;
-    text-align: center;
+  }
+  
+  .coinIcon {
+    margin-right: 8px; /* Отступ между иконкой и числом */
+    font-size: 28px; /* Размер иконки */
+  }
+  
+  .coinCount {
+    font-weight: bold; /* Жирный шрифт для числа */
   }
