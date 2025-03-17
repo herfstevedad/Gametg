@@ -1,7 +1,5 @@
-// Balance.tsx
-import { useState, useImperativeHandle, forwardRef, useEffect } from 'react';
-import { cloudStorage } from '@telegram-apps/sdk';
-import './balance.css';
+import { useImperativeHandle, forwardRef, useEffect, useState } from 'react';
+import './Balance.css';
 
 export interface BalanceRef {
   addCoins: (amount: number) => void;
@@ -10,10 +8,11 @@ export interface BalanceRef {
 const Balance = forwardRef<BalanceRef>((_, ref) => {
   const [coins, setCoins] = useState<number>(0);
 
+  // Загрузка баланса из localStorage
   useEffect(() => {
-    const loadBalance = async () => {
+    const loadBalance = () => {
       try {
-        const savedBalance = await cloudStorage.getItem('balance')
+        const savedBalance = localStorage.getItem('balance');
         if (savedBalance) {
           setCoins(Number(savedBalance));
         }
@@ -26,13 +25,13 @@ const Balance = forwardRef<BalanceRef>((_, ref) => {
   }, []);
 
   // Метод для увеличения баланса
-  const addCoins = async (amount: number) => {
+  const addCoins = (amount: number) => {
     const newCoins = coins + amount;
     setCoins(newCoins);
 
-    // Сохранение баланса в CloudStorage
+    // Сохранение баланса в localStorage
     try {
-      await cloudStorage.setItem('balance', String(newCoins));
+      localStorage.setItem('balance', String(newCoins));
     } catch (error) {
       console.error('Ошибка при сохранении баланса:', error);
     }
@@ -43,12 +42,12 @@ const Balance = forwardRef<BalanceRef>((_, ref) => {
   }));
 
   return (
-    <div className={'balanceContainer'}>
-    {/* Количество монет */}
-    <span className={'coinCount'}>{coins}</span>
-    {/* Иконка монеты */}
-    <img src="/images/coin.png" alt="" className='coinIcon'/>
-  </div>
+    <div className="balanceContainer">
+      {/* Количество монет */}
+      <span className="coinCount">{coins}</span>
+      {/* Иконка монеты */}
+      <img src="/images/coin.png" alt="" className="coinIcon" />
+    </div>
   );
 });
 

@@ -5,22 +5,25 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); /* Полупрозрачный фон */
+  background-color: rgba(0, 0, 0, 0.8); /* Полупрозрачный фон */
   display: flex;
   justify-content: center; /* Центрирование по горизонтали */
   align-items: flex-end; /* Окно выезжает снизу */
   z-index: 1000; /* Чтобы окно было поверх других элементов */
+  opacity: 1; /* Начальная видимость */
+  transition: opacity 0.3s ease-in-out; /* Плавное исчезновение фона */
 }
 
 .modalContent {
   position: relative;
-  background-color: white; /* Фон модального окна */
+  background-color: #222; /* Фон модального окна */
+  color: #e0e0e0;
   width: calc(100% - 40px); /* Ширина с учетом отступов (20px слева и справа) */
   max-width: 500px; /* Максимальная ширина */
   border-radius: 20px 20px 0 0; /* Закругленные углы сверху */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Тень */
-  transform: translateY(100%); /* Начинается за пределами экрана */
-  transition: transform 0.3s ease-in-out; /* Плавная анимация */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5); /* Тень */
+  transform: translateY(100%); /* Начальное положение */
+  transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out; /* Плавные переходы */
   display: flex;
   flex-direction: column; /* Размещение шапки и содержимого в столбец */
   max-height: 50vh; /* Максимальная высота */
@@ -29,23 +32,20 @@
   
 .modalHeader {
   display: flex;
+  border-radius: 20px 20px 0 0; /* Закругленные углы сверху */
   justify-content: space-between; /* Размещение заголовка и кнопки закрытия */
   align-items: center; /* Центрирование по вертикали */
   padding: 16px; /* Внутренние отступы */
-  border-bottom: 1px solid #ddd; /* Разделительная линия */
-  border-radius: 20px 20px 0 0; /* Закругленные углы сверху */
-  background-color: white; /* Фон шапки */
-  position: sticky; /* Фиксация шапки */
-  top: 0; /* Прилипание к верхней части окна */
-  z-index: 1; /* Чтобы шапка была поверх содержимого */
-  width: 100%; /* Шапка занимает всю ширину окна */
-  box-sizing: border-box; /* Учитываем внутренние отступы в ширине */
+  background: linear-gradient(to bottom, #333, #000); /* Тёмный градиент */
+  border-bottom: 1px solid #444; /* Тёмная разделительная линия */
+  color: #e0e0e0; /* Светлый текст */
 }
 
   
 .modalTitle {
   font-size: 20px;
   font-weight: bold;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5); /* Тень для текста */
 }
   
 .closeButton {
@@ -53,10 +53,12 @@
   border: none;
   font-size: 24px;
   cursor: pointer;
-  color: #333;
+  color: #e0e0e0;
+  transition: color 0.3s ease-in-out;
 }
 
 .modalBody {
+  color: #e0e0e0;
   padding: 16px; /* Внутренние отступы */
   overflow-y: auto; /* Прокрутка содержимого */
   flex-grow: 1; /* Занимает оставшееся пространство */
@@ -65,6 +67,15 @@
   
 .slideUp {
   transform: translateY(0); /* Останавливается в зависимости от содержимого */
+}
+
+.slideDown {
+  transform: translateY(100%); /* Скрываем окно */
+  opacity: 0; /* Исчезновение */
+}
+
+.fadeOut {
+  opacity: 0;
 }
 
   /* Анимация выезда снизу вверх */

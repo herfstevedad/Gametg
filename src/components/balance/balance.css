@@ -1,18 +1,19 @@
 .balanceContainer {
-    display: flex; /* Размещаем элементы в строку */
-    align-items: center; /* Центрируем по вертикали */
-    justify-content: center; /* Центрируем по горизонтали */
-    font-family: Arial, sans-serif;
-    font-size: 24px;
-    color: #333;
-  }
-  
-  .coinIcon {
-    width: 24px; /* Размер изображения */
-    height: 24px;
-    margin-right: 8px;
-  }
-  
-  .coinCount {
-    font-weight: bold; /* Жирный шрифт для числа */
-  }
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.coinCount {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 24px;
+  color: #f5f5f5;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+}
+
+.coinIcon {
+  width: 32px;
+  height: 32px;
+  margin-left: 8px;
+}
