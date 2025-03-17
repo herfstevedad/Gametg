@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef} from 'react';
-import styles from './Modal.module.css';
+import styles from './modal.module.css';
 
 interface ModalProps {
   onClose: () => void; // Функция для закрытия модального окна
