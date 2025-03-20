@@ -1,0 +1,90 @@
+import React, { useState, useEffect } from "react";
+import { retrieveLaunchParams } from "@telegram-apps/sdk";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { db } from "./firebase";
+
+const Registration: React.FC = () => {
+    const [group, setGroup] = useState<string>("");
+    const [isRegistered, setIsRegistered] = useState<boolean>(false);
+    const userId = retrieveLaunchParams().tgWebAppData?.user?.id;
+    // Получение launchParams из Telegram SDK
+    useEffect(() => {
+      const fetchLaunchParams = async () => {
+        try {
+
+          if (!userId) {
+            console.error("Не удалось получить userId из Telegram.");
+            return;
+          }
+        } catch (error) {
+          console.error("Ошибка при получении launchParams:", error);
+          alert("Произошла ошибка при загрузке данных.");
+        }
+      };
+  
+      fetchLaunchParams();
+    }, []);
+  
+    // Проверка наличия пользователя в базе
+    useEffect(() => {
+      const checkUser = async () => {
+        if (!userId) return;
+  
+        const userRef = doc(db, "users", userId.toString());
+        const userDoc = await getDoc(userRef);
+  
+        if (userDoc.exists()) {
+          setIsRegistered(true); // Пользователь уже зарегистрирован
+        }
+      };
+  
+      checkUser();
+    }, [userId]);
+  
+    // Обработчик выбора группы
+    const handleGroupChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+      setGroup(event.target.value);
+    };
+  
+    // Сохранение данных в Firestore
+    const handleSubmit = async () => {
+      if (!userId || !group) {
+        alert("Выберите группу!");
+        return;
+      }
+  
+      try {
+        const userRef = doc(db, "users", userId.toString());
+        await setDoc(userRef, { group });
+        setIsRegistered(true); // Пользователь успешно зарегистрирован
+      } catch (error) {
+        console.error("Ошибка при регистрации:", error);
+        alert("Произошла ошибка при регистрации.");
+      }
+    };
+  
+    if (!userId) {
+      return <p>Загрузка...</p>;
+    }
+  
+    if (isRegistered) {
+      return <p>Вы уже зарегистрированы!</p>;
+    }
+  
+    return (
+      <div>
+        <h2>Регистрация</h2>
+        <p>Выберите свою группу:</p>
+        <select value={group} onChange={handleGroupChange}>
+          <option value="">-- Выберите группу --</option>
+          <option value="ЭС-1-1">ЭС-1-1</option>
+          <option value="ЭС-1-2">ЭС-1-2</option>
+          <option value="ЭС-1-3">ЭС-1-3</option>
+          {/* Добавьте другие группы */}
+        </select>
+        <button onClick={handleSubmit}>Зарегистрироваться</button>
+      </div>
+    );
+  };
+  
+  export default Registration;

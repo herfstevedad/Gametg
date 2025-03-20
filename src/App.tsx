@@ -1,13 +1,14 @@
-import { useRef, useState } from 'react';
 import { init, miniApp } from '@telegram-apps/sdk'
-
-import Balance from './components/balance/balance';
-import Monster from './components/monster/monster';
-import Modal from './components/modal/modal';
+import Registration from './components/registration';
 
 import './App.css'
 
 function App() {
+  //Переменные
+
+  //Переменные
+
+  //Запуск TelegramSDK
   const initializeTelegramSDK = async () => {
     try {
       await init();
@@ -21,42 +22,14 @@ function App() {
   }
 
   initializeTelegramSDK();
-
-  const balanceRef = useRef<{ addCoins: (amount: number) => void } | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-
-  const handleMonsterDeath = (droppedCoins: number) => {
-    if (balanceRef.current) {
-      balanceRef.current.addCoins(droppedCoins);
-    }
-  };
-
-  const openModal = () => {
-    setIsModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setIsModalOpen(false);
-  };
+  //Запуск TelegramSDK
 
   return (
-    <div className={'game-container'}>
-      <div className={'balance-container'}>
-        <Balance ref={(ref) => { balanceRef.current = ref; }} />
-      </div>
-      <Monster onDeath={handleMonsterDeath} />
-
-      <button className={'openModalButton'} onClick={openModal}>
-        Открыть меню
-      </button>
-
-      {/* Модальное окно */}
-      {isModalOpen && <Modal onClose={closeModal} />}
+    <div>
+      <h1>Приложение расписания</h1>
+      <Registration />
     </div>
-  )
-
-}
-
-
+  );
+};
 
 export default App
