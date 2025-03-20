@@ -1,5 +1,5 @@
 import { init, miniApp } from '@telegram-apps/sdk'
-import Registration from './components/registration';
+import Registration from './components/registration/registration';
 
 import './App.css'
 

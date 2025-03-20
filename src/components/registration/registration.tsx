@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { retrieveLaunchParams } from "@telegram-apps/sdk";
 import { doc, getDoc, setDoc } from "firebase/firestore";
-import { db } from "./firebase";
+import { db } from "../firebase";
+import styles from './registration.module.css'; // Импортируем стили
 
 const Registration: React.FC = () => {
     const [group, setGroup] = useState<string>("");
@@ -72,19 +73,32 @@ const Registration: React.FC = () => {
     }
   
     return (
-      <div>
-        <h2>Регистрация</h2>
-        <p>Выберите свою группу:</p>
-        <select value={group} onChange={handleGroupChange}>
-          <option value="">-- Выберите группу --</option>
-          <option value="ЭС-1-1">ЭС-1-1</option>
-          <option value="ЭС-1-2">ЭС-1-2</option>
-          <option value="ЭС-1-3">ЭС-1-3</option>
-          {/* Добавьте другие группы */}
-        </select>
-        <button onClick={handleSubmit}>Зарегистрироваться</button>
+      <div className={styles.container}>
+        <div className={styles.registrationContainer}>
+          {/* Логотип */}
+          <img src="logo.png" alt="Логотип" className={styles.logo} />
+  
+          {/* Заголовок */}
+          <h2 className={styles.header}>Регистрация</h2>
+  
+          {/* Подзаголовок */}
+          <p className={styles.subtitle}>Выберите свою группу:</p>
+  
+          {/* Выбор группы и кнопка */}
+          <div className={styles.selectGroup}>
+            <select value={group} onChange={handleGroupChange}>
+              <option value="">-- Выберите группу --</option>
+              <option value="ЭС-1-1">ЭС-1-1</option>
+              <option value="ЭС-1-2">ЭС-1-2</option>
+              <option value="ЭС-1-3">ЭС-1-3</option>
+              {/* Добавьте другие группы */}
+            </select>
+            <button onClick={handleSubmit}>Зарегистрироваться</button>
+          </div>
+        </div>
       </div>
     );
   };
+
   
   export default Registration;
