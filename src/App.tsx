@@ -26,7 +26,6 @@ function App() {
 
   return (
     <div>
-      <h1>Приложение расписания</h1>
       <Registration />
     </div>
   );
