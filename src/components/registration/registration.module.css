@@ -11,10 +11,9 @@
     width: 400px;
     padding: 20px;
     background: white;
-    border-radius: 16px; /* Скругленные углы */
+    border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     text-align: center;
-    margin: 50px; /* Увеличиваем отступы вокруг контейнера */
   }
   
   .header {
@@ -40,7 +39,7 @@
     padding: 8px 12px;
     font-size: 16px;
     border: 1px solid #ccc;
-    border-radius: 8px; /* Скругленные углы */
+    border-radius: 4px;
     width: 70%;
   }
   
@@ -49,34 +48,15 @@
     font-size: 16px;
     background-color: #e0e0e0;
     border: none;
-    border-radius: 8px; /* Скругленные углы */
+    border-radius: 4px;
     cursor: pointer;
     margin-left: 10px;
   }
   
-  .form-field {
-    margin-bottom: 10px; /* Расстояние между полями */
-  }
-  
-  .course-select,
-  .group-select {
-    padding: 8px 12px;
-    font-size: 16px;
-    border: 1px solid #ccc;
-    border-radius: 8px; /* Скругленные углы */
-    width: 100%;
-  }
-  
-  .course-select {
-    margin-bottom: 10px; /* Расстояние между полями */
-  }
-  
-  .submit-button {
-    padding: 8px 16px;
-    font-size: 16px;
-    background-color: #e0e0e0;
-    border: none;
-    border-radius: 8px; /* Скругленные углы */
-    cursor: pointer;
-    width: 100%; /* Занимает всю ширину */
+  .logo {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
   }
