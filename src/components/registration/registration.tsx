@@ -6,6 +6,7 @@ import styles from './registration.module.css'; // Импортируем сти
 
 const Registration: React.FC = () => {
     const [group, setGroup] = useState<string>("");
+    const [course, setCourse] = useState<string>("");
     const [isRegistered, setIsRegistered] = useState<boolean>(false);
     const userId = retrieveLaunchParams().tgWebAppData?.user?.id;
     // Получение launchParams из Telegram SDK
@@ -42,6 +43,11 @@ const Registration: React.FC = () => {
       checkUser();
     }, [userId]);
   
+    // Обработчик выбора курса
+    const handleCourseChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+      setCourse(event.target.value);
+    };
+
     // Обработчик выбора группы
     const handleGroupChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
       setGroup(event.target.value);
@@ -75,17 +81,74 @@ const Registration: React.FC = () => {
     return (
       <div className={styles.container}>
         <div className={styles.registrationContainer}>
-          {/* Выбор группы и кнопка */}
-          <div className={styles.selectGroup}>
-            <select value={group} onChange={handleGroupChange}>
-              <option value="">-- Выберите группу --</option>
-              <option value="ЭС-1-1">ЭС-1-1</option>
-              <option value="ЭС-1-2">ЭС-1-2</option>
-              <option value="ЭС-1-3">ЭС-1-3</option>
-              {/* Добавьте другие группы */}
+          {/* Заголовок */}
+          <h2 className={styles.header}>Регистрация</h2>
+  
+          {/* Подзаголовок */}
+          <p className={styles.subtitle}>Выберите свой курс и группу:</p>
+  
+          {/* Поле выбора курса */}
+          <div className={styles.formField}>
+            <label htmlFor="course">Курс:</label>
+            <select
+              id="course"
+              value={course}
+              onChange={handleCourseChange}
+              className={styles.courseSelect}
+            >
+              <option value="">-- Выберите курс --</option>
+              <option value="1">1-ый курс</option>
+              <option value="2">2-ой курс</option>
+              <option value="3">3-ий курс</option>
+              <option value="4">4-ый курс</option>
             </select>
-            <button onClick={handleSubmit}>Готово</button>
           </div>
+  
+          {/* Поле выбора группы */}
+          <div className={styles.formField}>
+            <label htmlFor="group">Группа:</label>
+            <select
+              id="group"
+              value={group}
+              onChange={handleGroupChange}
+              className={styles.groupSelect}
+            >
+              <option value="">-- Выберите группу --</option>
+              {course === "1" && (
+                <>
+                  <option value="ЭС-1-1">ЭС-1-1</option>
+                  <option value="ЭС-1-2">ЭС-1-2</option>
+                  <option value="ЭС-1-3">ЭС-1-3</option>
+                </>
+              )}
+              {course === "2" && (
+                <>
+                  <option value="ЭС-2-1">ЭС-2-1</option>
+                  <option value="ЭС-2-2">ЭС-2-2</option>
+                  <option value="ЭС-2-3">ЭС-2-3</option>
+                </>
+              )}
+              {course === "3" && (
+                <>
+                  <option value="ЭС-3-1">ЭС-3-1</option>
+                  <option value="ЭС-3-2">ЭС-3-2</option>
+                  <option value="ЭС-3-3">ЭС-3-3</option>
+                </>
+              )}
+              {course === "4" && (
+                <>
+                  <option value="ЭС-4-1">ЭС-4-1</option>
+                  <option value="ЭС-4-2">ЭС-4-2</option>
+                  <option value="ЭС-4-3">ЭС-4-3</option>
+                </>
+              )}
+            </select>
+          </div>
+  
+          {/* Кнопка регистрации */}
+          <button onClick={handleSubmit} className={styles.submitButton}>
+            Готово
+          </button>
         </div>
       </div>
     );
