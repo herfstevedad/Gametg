@@ -1,5 +1,5 @@
 import { init, miniApp } from '@telegram-apps/sdk'
-import Registration from './components/registration/registration';
+
 
 import './App.css'
 
@@ -26,7 +26,7 @@ function App() {
 
   return (
     <div>
-      <Registration />
+      1
     </div>
   );
 };
