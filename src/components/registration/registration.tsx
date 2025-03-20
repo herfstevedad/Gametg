@@ -75,17 +75,7 @@ const Registration: React.FC = () => {
     return (
       <div className={styles.container}>
         <div className={styles.registrationContainer}>
-          {/* Заголовок */}
-          <h2 className={styles.header}>Регистрация</h2>
-  
-          {/* Подзаголовок */}
-          <p className={styles.subtitle}>Выберите свой курс и группу:</p>
-  
-          {/* Поле выбора курса */}
-  
-          {/* Поле выбора группы */}
           <div className={styles.formField}>
-            <label htmlFor="group">Группа:</label>
             <select
               id="group"
               value={group}
