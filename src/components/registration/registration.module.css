@@ -3,17 +3,20 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-    border-radius: 12px;
-    background-color: #f0f8ff; /* Светло-голубой фон */
-    padding: 20px;
+    height: 97.5vh;
+    border-radius: 24px;
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.1);
+    background-color: #c5e0f8; /* Светло-голубой фон */
   }
   
-  .registration-container {
+  .registrationContainer {
     width: 400px;
-    background: white;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 16px; /* Скругленные углы */
+    box-shadow: 5px 5px 10px 2px rgba(0, 0, 0, 0.4);
     text-align: center;
+    margin: 50px; /* Увеличиваем отступы вокруг контейнера */
   }
   
   .header {
@@ -28,28 +31,63 @@
     color: #666;
   }
   
-  .select-group {
+  .selectGroup {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 10px;
   }
   
-  .select-group select {
+  .selectGroup select {
     padding: 8px 12px;
     font-size: 16px;
     border: 1px solid #ccc;
-    border-radius: 4px;
+    border-radius: 8px; /* Скругленные углы */
     width: 70%;
   }
   
-  .select-group button {
+  .selectGroup button {
     padding: 8px 16px;
     font-size: 16px;
     background-color: #e0e0e0;
     border: none;
-    border-radius: 4px;
+    border-radius: 8px; /* Скругленные углы */
     cursor: pointer;
     margin-left: 10px;
   }
   
+  .formField {
+    margin-bottom: 10px; /* Расстояние между полями */
+  }
+  
+  .courseSelect,
+  .groupSelect {
+    padding: 8px 12px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 8px; /* Скругленные углы */
+    width: 100%;
+    color:#00000077;
+  }
+  
+  .course-select {
+    margin-bottom: 10px; /* Расстояние между полями */
+  }
+  
+  .submitButton {
+    padding: 8px 16px;
+    font-size: 16px;
+    background-color: #e0e0e0;
+    border: none;
+    border-radius: 8px; /* Скругленные углы */
+    cursor: pointer;
+    width: 100%; /* Занимает всю ширину */
+  }
+
+  select option:checked {
+    color: red;
+  }
+
+  select popup {
+    border-radius: 10px;
+  }
