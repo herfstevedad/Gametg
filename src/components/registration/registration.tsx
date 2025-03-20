@@ -75,15 +75,6 @@ const Registration: React.FC = () => {
     return (
       <div className={styles.container}>
         <div className={styles.registrationContainer}>
-          {/* Логотип */}
-          <img src="logo.png" alt="Логотип" className={styles.logo} />
-  
-          {/* Заголовок */}
-          <h2 className={styles.header}>Регистрация</h2>
-  
-          {/* Подзаголовок */}
-          <p className={styles.subtitle}>Выберите свою группу:</p>
-  
           {/* Выбор группы и кнопка */}
           <div className={styles.selectGroup}>
             <select value={group} onChange={handleGroupChange}>
@@ -93,7 +84,7 @@ const Registration: React.FC = () => {
               <option value="ЭС-1-3">ЭС-1-3</option>
               {/* Добавьте другие группы */}
             </select>
-            <button onClick={handleSubmit}>Зарегистрироваться</button>
+            <button onClick={handleSubmit}>Готово</button>
           </div>
         </div>
       </div>
