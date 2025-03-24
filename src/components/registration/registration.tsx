@@ -1,11 +1,13 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom"; // Для навигации
 import styles from "./registration.module.css"; // Импортируем стили
 import CustomSelect from "./customSelect/customSelect";
+
 
 const Registration: React.FC = () => {
   const [course, setCourse] = useState<string>(""); // Новое поле для выбора курса
   const [groupCode, setGroupCode] = useState<string>("");
-
+  const navigate = useNavigate(); // Хук для навигации
   
 
  const getGroupsByCourse = (course: string) => {
@@ -76,7 +78,8 @@ const Registration: React.FC = () => {
               alert("Выберите группу!");
               return;
             }
-            alert(`Вы выбрали группу: ${groupCode}`);
+            // Переход на основное приложение
+            navigate("/app");
           }}
           className={styles.submitButton}
         >
