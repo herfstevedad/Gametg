@@ -1,0 +1,21 @@
+/* Стили для головы */
+.header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background-color: #007bff; /* Синий фон */
+    border-radius: 15px;
+    color: white;
+    text-align: center;
+  }
+  
+  .title {
+    font-size: 24px;
+    margin-bottom: 10px;
+  }
+  
+  .date {
+    font-size: 16px;
+  }

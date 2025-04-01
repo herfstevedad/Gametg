@@ -1,43 +1,48 @@
-import { init, miniApp } from '@telegram-apps/sdk'
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { init, miniApp } from '@telegram-apps/sdk';
+import { useState, useEffect } from 'react';
 import Registration from './components/registration/registration';
 import MainApp from './components/mainApp/mainApp';
-
-import './App.css'
+import './App.css';
 
 const App: React.FC = () => {
+  const [isRegistrationOpen, setIsRegistrationOpen] = useState(false);
+  const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
 
-  //Запуск TelegramSDK
   const initializeTelegramSDK = async () => {
     try {
       await init();
-
       if (miniApp.ready.isAvailable()) {
-        await miniApp.ready()
+        await miniApp.ready();
       }
-    } catch (error) {
+    } catch (error) { 
       console.error('Ошибка инициализации:', error);
     }
-  }
+  };
 
-  initializeTelegramSDK();
-  //Запуск TelegramSDK
+  useEffect(() => {
+    initializeTelegramSDK();
+    //const savedGroup = localStorage.getItem('selectedGroup');
+    //setSelectedGroup(savedGroup);
+    setIsRegistrationOpen(true); // Показываем регистрацию только если нет сохранённой группы
+  }, []);
 
+  const handleGroupSelect = (serverGroup: string) => {
+    //localStorage.setItem('selectedGroup', serverGroup);
+    setSelectedGroup(serverGroup);
+    setIsRegistrationOpen(false);
+  };
 
   return (
-    <Router>
-      <Routes>
-        {/* Страница регистрации */}
-        <Route path="/registration" element={<Registration />} />
-
-        {/* Основное приложение */}
-        <Route path="/app" element={<MainApp />} />
-
-        {/* Перенаправление на /registration по умолчанию */}
-        <Route path="*" element={<Navigate to="/registration" />} />
-      </Routes>
-    </Router>
+    <div>
+      <MainApp group={selectedGroup} />
+      {isRegistrationOpen && (
+        <Registration 
+          onClose={() => setIsRegistrationOpen(false)} 
+          onGroupSelect={handleGroupSelect} // Теперь передаём функцию
+        />
+      )}
+    </div>
   );
 };
 
-export default App
+export default App;

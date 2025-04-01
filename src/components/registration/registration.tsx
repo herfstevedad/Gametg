@@ -1,22 +1,44 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom"; // Для навигации
 import styles from "./registration.module.css"; // Импортируем стили
 import CustomSelect from "./customSelect/customSelect";
 
+interface RegistrationModalProps {
+  onClose: () => void; // Функция для закрытия окна
+  onGroupSelect: (group: string) => void; // Добавляем колбэк
+}
 
-const Registration: React.FC = () => {
+const Registration: React.FC<RegistrationModalProps> = ({ 
+  onClose, 
+  onGroupSelect // Теперь TypeScript знает об этом пропсе
+}) => {
   const [course, setCourse] = useState<string>(""); // Новое поле для выбора курса
   const [groupCode, setGroupCode] = useState<string>("");
-  const navigate = useNavigate(); // Хук для навигации
   
 
  const getGroupsByCourse = (course: string) => {
     switch (course) {
       case "1":
         return [
-          { label: "ЭС-1-1", value: "ES11" },
+          { label: "А-1-1", value: "A11" },
+          { label: "В-1-1", value: "V11" },
+          { label: "Д-1-1", value: "D11" },
+          { label: "Д-1-2", value: "D12" },
+          { label: "Д-1-3", value: "D13" },
           { label: "КС-1-1", value: "KS11" },
-          { label: "ИС-1-1", value: "IS11" },
+          { label: "КС-1-2", value: "KS12" },
+          { label: "КС-1-3", value: "KS13" },
+          { label: "Л-1-1", value: "L11" },
+          { label: "Л-1-2", value: "L12" },
+          { label: "Л-1-3", value: "L13" },
+          { label: "Л-1-4", value: "L14" },
+          { label: "Л-1-5", value: "L15" },
+          { label: "П-1-1", value: "P11" },
+          { label: "ПМ-1-1", value: "PM11" },
+          { label: "Р-1-1", value: "R11" },
+          { label: "С-1-1", value: "S11" },
+          { label: "СП-1-1", value: "SP11" },
+          { label: "Э-1-1", value: "E11" },
+          { label: "ЭС-1-1", value: "ES11" },
         ];
       case "2":
         return [
@@ -41,11 +63,25 @@ const Registration: React.FC = () => {
     }
   };
 
-  return (
-    <div className={styles.container}>
-      <div className={styles.registrationContainer}>
+  const handleSubmit = () => {
+    if (!groupCode) {
+      alert("Выберите группу!");
+      return;
+    }
+    
+    // Сохраняем группу в localStorage
+    localStorage.setItem("selectedGroup", groupCode);
+    
+    // Передаем группу родительскому компоненту
+    onGroupSelect(groupCode);
+    
+    // Закрываем модальное окно
+    onClose();
+  };
 
-        {/* Поле выбора курса */}
+  return (
+    <div className={styles.modalOverlay}>
+      <div className={`${styles.modalContent} ${styles.registrationContainer}`}>
         <CustomSelect
           options={[
             { label: "1 курс", value: "1" },
@@ -57,11 +93,10 @@ const Registration: React.FC = () => {
           value={course}
           onChange={(value) => {
             setCourse(value);
-            setGroupCode(""); // Сбрасываем группу при изменении курса
+            setGroupCode("");
           }}
         />
 
-        {/* Поле выбора группы */}
         {course && (
           <CustomSelect
             options={getGroupsByCourse(course)}
@@ -71,16 +106,8 @@ const Registration: React.FC = () => {
           />
         )}
 
-        {/* Кнопка регистрации */}
         <button
-          onClick={() => {
-            if (!groupCode) {
-              alert("Выберите группу!");
-              return;
-            }
-            // Переход на основное приложение
-            navigate("/app");
-          }}
+          onClick={handleSubmit}
           className={styles.submitButton}
         >
           Готово

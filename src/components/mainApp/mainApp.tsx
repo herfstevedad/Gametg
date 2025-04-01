@@ -1,10 +1,22 @@
 import React from "react";
+import Header from "./header/header";
+import styles from "./MainApp.module.css";
+import PdfParser from "../pdfParser";
 
-const MainApp: React.FC = () => {
+interface MainAppProps {
+  group: string | null; // Пропс с выбранной группой
+}
+
+const MainApp: React.FC<MainAppProps> = ({ group }) => {
   return (
-    <div>
-      <h1>Добро пожаловать в основное приложение!</h1>
-      <p>Здесь вы можете продолжить работу.</p>
+    <div className={styles.appContainer}>
+      {/* Передаем выбранную группу в Header, если нужно */}
+      <Header/>
+      
+      <div className={styles.mainContent}>
+        {/* Передаем group в PdfParser */}
+        <PdfParser group={group} />
+      </div>
     </div>
   );
 };
