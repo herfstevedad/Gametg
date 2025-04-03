@@ -1,36 +1,160 @@
-/* Стили для контейнера */
+/* Основные стили контейнера */
 .parserContainer {
+    max-width: 1200px;
+    margin: 0 auto;
     padding: 20px;
-    background-color: #f9f9f9;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    max-width: 600px;
-    margin: 20px auto;
   }
   
-  /* Стили для кнопки */
-  .parserContainer button {
-    padding: 10px 20px;
-    background-color: #007bff;
+  .loadButton {
+    background-color: #4CAF50;
     color: white;
+    padding: 10px 20px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
     font-size: 16px;
+    width: 100%;
   }
   
-  .parserContainer button:hover {
-    background-color: #0056b3;
+  .loadButton:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
   }
   
-  /* Стили для текстового вывода */
-  .textOutput {
-    margin-top: 20px;
+  .loading {
+    padding: 20px;
+    text-align: center;
+    font-size: 18px;
+    color: #666;
+  }
+  
+  .noSchedule {
+    padding: 20px;
+    text-align: center;
+    font-size: 18px;
+    color: #666;
+  }
+  
+  /* Стили для отображения расписания */
+  .scheduleContainer {
+    margin-top: 30px;
+  }
+  
+  .weekSelector {
+    display: flex;
+    gap: 54px;
+    margin-bottom: 20px;
+  }
+  
+  .weekSelector button {
+    padding: 8px 16px;
+    background: #f0f0f0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .weekSelector button.activeWeek {
+    background: #3498db;
+    color: white;
+    border-color: #2980b9;
+  }
+  
+  .daysGrid {
+    display: grid;
+    gap: 20px;
+  }
+  
+  .dayCard {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+  }
+  
+  .dayHeader {
+    color: #2c3e50;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 10px;
+    margin-top: 0;
+  }
+  
+  .pairsList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .pairItem {
+    background: #f8f9fa;
+    border-left: 4px solid #3498db;
+    padding: 12px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+  }
+  
+  .pairItem.subgroup {
+    border-left-color: #e74c3c;
+  }
+  
+  .subject {
+    font-weight: bold;
+    color: #2c3e50;
+    margin-bottom: 5px;
+  }
+  
+  .teacher {
+    color: #7f8c8d;
+    font-size: 0.9em;
+  }
+  
+  .room {
+    color: #16a085;
+    font-size: 0.9em;
+    margin-top: 5px;
+  }
+  
+  .subgroups {
+    margin-top: 10px;
+  }
+  
+  .subgroupItem {
+    margin-bottom: 5px;
+  }
+  
+  .subgroupLabel {
+    font-weight: bold;
+    color: #e74c3c;
+    margin-right: 5px;
+    font-size: 0.8em;
+  }
+  
+  .noPairs {
+    color: #95a5a6;
+    font-style: italic;
+    text-align: center;
+    margin: 20px 0;
+  }
+  
+  /* Отладочная информация */
+  .debugInfo {
+    margin-top: 30px;
+    border: 1px solid #ddd;
     padding: 10px;
-    background-color: #fff;
-    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  .debugInfo summary {
+    cursor: pointer;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+  
+  .textOutput {
+    white-space: pre-wrap;
+    background: #f5f5f5;
+    padding: 10px;
     border-radius: 4px;
     max-height: 300px;
-    overflow-y: auto;
-    white-space: pre-wrap; /* Перенос строк */
+    overflow: auto;
   }

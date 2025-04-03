@@ -260,55 +260,138 @@ function isRoom(token: string): boolean {
   return result;
 }
 
+// Новый компонент для отображения расписания
+const ScheduleViewer: React.FC<{ schedule: WeekSchedule[] }> = ({ schedule }) => {
+  const [currentWeekIndex, setCurrentWeekIndex] = useState(0);
+  
+  if (schedule.length === 0) return <div className={styles.noSchedule}>Расписание не загружено</div>;
+
+  const currentWeek = schedule[currentWeekIndex];
+
+  return (
+    <div className={styles.scheduleContainer}>
+      <div className={styles.weekSelector}>
+        {schedule.map((week, index) => (
+          <button
+            key={index}
+            onClick={() => setCurrentWeekIndex(index)}
+            className={currentWeekIndex === index ? styles.activeWeek : ''}
+          >
+            {week.week} неделя
+          </button>
+        ))}
+      </div>
+
+      <div className={styles.daysGrid}>
+        {currentWeek.schedule.map((day, index) => (
+          <div key={index} className={styles.dayCard}>
+            <h3 className={styles.dayHeader}>{day.day}</h3>
+            
+            {day.pairs.length > 0 ? (
+              <ul className={styles.pairsList}>
+                {day.pairs.map((pair, pairIndex) => {
+                  if (pair.subject.includes('п/г')) {
+                    const match = pair.subject.match(/^(.+?) 1 п\/г (.+?) 2 п\/г (.+)$/) || 
+                                 pair.subject.match(/^(.+?) 1 п\/г (.+?)$/);
+                    
+                    if (!match) return <li key={pairIndex} className={styles.pairItem}>{pair.subject}</li>;
+                    
+                    return (
+                      <li key={pairIndex} className={`${styles.pairItem} ${styles.subgroup}`}>
+                        <div className={styles.subject}>{match[1]}</div>
+                        <div className={styles.subgroups}>
+                          <div className={styles.subgroupItem}>
+                            <span className={styles.subgroupLabel}>1 подгруппа:</span>
+                            <span>{match[2]}</span>
+                          </div>
+                          {match[3] && (
+                            <div className={styles.subgroupItem}>
+                              <span className={styles.subgroupLabel}>2 подгруппа:</span>
+                              <span>{match[3]}</span>
+                            </div>
+                          )}
+                        </div>
+                      </li>
+                    );
+                  }
+                  
+                  const regularMatch = pair.subject.match(/^(.+?) (.+?) (\d+[a-zA-Zа-яА-Я\/-]*)$/);
+                  if (!regularMatch) return <li key={pairIndex} className={styles.pairItem}>{pair.subject}</li>;
+                  
+                  return (
+                    <li key={pairIndex} className={styles.pairItem}>
+                      <div className={styles.subject}>{regularMatch[1]}</div>
+                      <div className={styles.teacher}>{regularMatch[2]}</div>
+                      <div className={styles.room}>Ауд. {regularMatch[3]}</div>
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : (
+              <p className={styles.noPairs}>Нет занятий</p>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 const PdfParser: React.FC<PdfParserProps> = ({ group }) => {
-  const [text, setText] = useState<string>(""); // Состояние для хранения текста
-  const [schedule, setSchedule] = useState<any[]>([]); // Состояние для структурированных данных
+  const [text, setText] = useState<string>("");
+  const [schedule, setSchedule] = useState<WeekSchedule[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Функция для загрузки данных с сервера
   const loadPdfData = async () => {
+    setIsLoading(true);
     try {
-      // URL для запроса данных с сервера
       const serverUrl = `http://localhost:3001/api/schedule/${group}`;
-
       console.log("Загрузка данных с сервера:", serverUrl);
 
-      // Отправляем GET-запрос на сервер
       const response = await fetch(serverUrl);
+      if (!response.ok) throw new Error(`Ошибка сети: ${response.status}`);
 
-      if (!response.ok) {
-        throw new Error(`Ошибка сети: ${response.status}`);
-      }
-
-      // Получаем JSON-данные
       const data = await response.json();
+      if (!data.success) throw new Error(data.error || 'Неизвестная ошибка');
 
-      if (!data.success) {
-        throw new Error(data.error || 'Неизвестная ошибка');
-      }
-      console.log(data.text);
-      // Структурируем данные
       setText(data.schedule);
-        const structuredData = parseSchedule(data.schedule);
-        setSchedule(structuredData);
+      const structuredData = parseSchedule(data.schedule);
+      setSchedule(structuredData);
     } catch (error) {
       console.error("Ошибка при загрузке данных:", error);
       setText("Не удалось загрузить данные.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <div className={styles.parserContainer}>
-      <h2>Парсинг PDF</h2>
-      <button onClick={loadPdfData}>Загрузить данные</button>
+      <button 
+        onClick={loadPdfData} 
+        disabled={isLoading}
+        className={styles.loadButton}
+      >
+        {isLoading ? 'Загрузка...' : 'Загрузить расписание'}
+      </button>
 
-      {/* Отображение текста */}
-      <pre className={styles.textOutput}>{text}</pre>
-
-      {/* Отображение структурированных данных */}
-      <div>
-        <h3>Структурированное расписание:</h3>
-        <pre>{JSON.stringify(schedule, null, 2)}</pre>
-      </div>
+      {isLoading ? (
+        <div className={styles.loading}>Загрузка данных...</div>
+      ) : (
+        <>
+          {/* Показываем структурированное расписание */}
+          {schedule.length > 0 && <ScheduleViewer schedule={schedule} />}
+          
+          {/* Опционально: показываем сырой текст для отладки */}
+          {process.env.NODE_ENV === 'development' && (
+            <details className={styles.debugInfo}>
+              <summary>Отладочная информация</summary>
+              <pre className={styles.textOutput}>{text}</pre>
+              <pre>{JSON.stringify(schedule, null, 2)}</pre>
+            </details>
+          )}
+        </>
+      )}
     </div>
   );
 };
