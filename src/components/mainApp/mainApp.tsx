@@ -1,6 +1,6 @@
 import React from "react";
 import Header from "./header/header";
-import styles from "./MainApp.module.css";
+import styles from "./mainApp.module.css";
 import PdfParser from "../pdfParser";
 
 interface MainAppProps {
