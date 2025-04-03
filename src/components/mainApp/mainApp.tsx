@@ -1,4 +1,3 @@
-import React from "react";
 import Header from "./header/header";
 import styles from "./mainApp.module.css";
 import PdfParser from "../pdfParser";

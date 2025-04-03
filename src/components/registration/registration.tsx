@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import styles from "./registration.module.css"; // Импортируем стили
 import CustomSelect from "./customSelect/customSelect";
 
