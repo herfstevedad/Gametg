@@ -5,137 +5,260 @@ interface PdfParserProps {
   group: string | null;
 }
 
-// Функция для структуризации данных
-function parseSchedule(text: string): any[] {
-    // Предварительная обработка текста
-    text = text.replace(/\s+/g, " ").trim(); // Удаляем лишние пробелы
-    text = text.replace(/\u00A0/g, " "); // Удаляем неразрывные пробелы
-  
-    const weeks = text.split("Неделя").slice(1); // Разделяем на недели
-    const parsedData: any[] = [];
-  
-    const daysOfWeek = ["Пнд", "Втр", "Срд", "Чтв", "Птн", "Сбт"]; // Дни недели
-  
-    weeks.forEach((weekText, index) => {
-      console.log(`Обработка недели ${index + 1}:`, weekText);
-  
-      const weekNumberMatch = weekText.match(/\d+-я/);
-      if (!weekNumberMatch) {
-        throw new Error(`Не удалось найти номер недели в тексте: ${weekText}`);
-      }
-      const weekNumber = weekNumberMatch[0];
-  
-      console.log(`Найден номер недели: ${weekNumber}`);
-  
-      // Разделяем текст на слова
-      const words = weekText.split(" ");
-  
-      let currentDay = "";
-      let currentPairs: string[] = [];
-      const schedule = [];
-      let isDayFound = false;
-  
-      for (const word of words) {
-        if (!isDayFound) {
-          // Ищем первый день недели
-          if (daysOfWeek.includes(word)) {
-            isDayFound = true;
-            currentDay = word;
-            console.log(`Найден первый день недели: ${currentDay}`);
-          } else {
-            console.log(`Пропускаем слово до первого дня недели: ${word}`);
-          }
-          continue;
-        }
-  
-        // Пропускаем заголовки ("Пары", "Время")
-        if (["Пары", "Время"].includes(word)) {
-          console.log(`Пропускаем заголовок: ${word}`);
-          continue;
-        }
-  
-        // Проверяем, является ли слово днем недели
-        if (daysOfWeek.includes(word)) {
-          if (currentDay) {
-            schedule.push({ day: currentDay, pairs: parsePairs(currentPairs) });
-            console.log(`Добавлен день недели в расписание: ${currentDay}`, currentPairs);
-            currentPairs = [];
-          }
-          currentDay = word;
-          console.log(`Найден новый день недели: ${currentDay}`);
-        } else if (word.trim()) {
-          // Добавляем слово к текущему блоку данных
-          currentPairs.push(word.trim());
-        }
-      }
-  
-      if (currentDay && currentPairs.length > 0) {
-        schedule.push({ day: currentDay, pairs: parsePairs(currentPairs) });
-        console.log(`Добавлен последний день недели в расписание: ${currentDay}`, currentPairs);
-      }
-  
-      parsedData.push({
-        week: weekNumber,
-        schedule,
-      });
-  
-      console.log(`Завершена обработка недели. Структурированные данные:`, { week: weekNumber, schedule });
-    });
-  
-    return parsedData;
-  }
-  
-  // Функция для разбора пар занятий
-  function parsePairs(pairsText: string[]): any[] {
-    const result: any[] = [];
-    const fullText = pairsText.join(" ");
-    
-    // Регулярное выражение для обычных предметов
-    const regularSubjectRegex = /([А-Яа-яёЁ\s-]+)\s+([А-Яа-яёЁ\.]+\s+[А-Яа-яёЁ\.]+)\s+(\d+[a-zA-Zа-яА-Я\/-]*)/g;
-    
-    // Регулярное выражение для предметов с подгруппами
-    const subgroupSubjectRegex = /(Информатика|Иностранный язык)\s+1 п\/г\s+([А-Яа-яёЁ\.]+\s+[А-Яа-яёЁ\.]+)\s+(\d+)\s+2 п\/г\s+([А-Яа-яёЁ\.]+\s+[А-Яа-яёЁ\.]+)\s+(\d+)/g;
-    
-    // Сначала обрабатываем предметы с подгруппами
-    let lastIndex = 0;
-    const processedText = fullText.replace(subgroupSubjectRegex, (match, subject, teacher1, room1, teacher2, room2, offset) => {
-        result.push({
-            subject: subject,
-            subgroups: [
-                {
-                    subgroup: "1 п/г",
-                    teacher: teacher1.trim(),
-                    room: room1.trim()
-                },
-                {
-                    subgroup: "2 п/г",
-                    teacher: teacher2.trim(),
-                    room: room2.trim()
-                }
-            ]
-        });
-        lastIndex = offset + match.length;
-        return ""; // Удаляем обработанный текст
-    });
-    
-    // Затем обрабатываем оставшийся текст для обычных предметов
-    const remainingText = processedText.slice(lastIndex);
-    let regularMatch;
-    while ((regularMatch = regularSubjectRegex.exec(remainingText)) !== null) {
-        // Пропускаем пустые совпадения
-        if (!regularMatch[1].trim()) continue;
-        
-        result.push({
-            subject: regularMatch[1].trim(),
-            teacher: regularMatch[2].trim(),
-            room: regularMatch[3].trim()
-        });
-    }
-    
-    return result;
+interface SchedulePair {
+  subject: string;
 }
 
+interface ScheduleDay {
+  day: string;
+  pairs: SchedulePair[];
+}
+
+interface WeekSchedule {
+  week: string;
+  schedule: ScheduleDay[];
+}
+
+function parseSchedule(text: string): WeekSchedule[] {
+  console.log('=== НАЧАЛО ПАРСИНГА ===');
+  console.log('Исходный текст:', text);
+
+  // Нормализация текста
+  text = text.replace(/\s+/g, ' ').trim();
+  text = text.replace(/\u00A0/g, ' ');
+  console.log('Текст после нормализации:', text);
+
+  // Словарь дней недели
+  const dayNamesMap: Record<string, string> = {
+    'Пнд': 'Понедельник',
+    'Втр': 'Вторник',
+    'Срд': 'Среда',
+    'Чтв': 'Четверг',
+    'Птн': 'Пятница',
+    'Сбт': 'Суббота'
+  };
+  const daysAbbreviations = Object.keys(dayNamesMap);
+
+  // Разделяем текст на недели
+  const weekSections = text.split('Неделя:').slice(1);
+  console.log(`Найдено недель: ${weekSections.length}`);
+
+  const result: WeekSchedule[] = [];
+
+  weekSections.forEach((weekText, weekIndex) => {
+    console.log(`\n=== ОБРАБОТКА НЕДЕЛИ ${weekIndex + 1} ===`);
+
+    const weekNumberMatch = weekText.match(/(\d+-я)/);
+    const weekNumber = weekNumberMatch?.[1] || '1-я';
+    console.log(`Номер недели: ${weekNumber}`);
+
+    const weekData: WeekSchedule = {
+      week: weekNumber,
+      schedule: []
+    };
+
+    // Ищем дни недели в тексте
+    const dayRegex = new RegExp(`(${daysAbbreviations.join('|')})\\s*(.*?)(?=${daysAbbreviations.join('|')}|$)`, 'gs');
+    const dayMatches = [...weekText.matchAll(dayRegex)];
+    console.log(`Найдено дней в неделе: ${dayMatches.length}`);
+
+    dayMatches.forEach((match, dayIndex) => {
+      const dayAbbreviation = match[1];
+      let dayContent = match[2].trim();
+      console.log(`\nОбработка дня ${dayIndex + 1}: ${dayAbbreviation}`);
+      console.log('Содержимое дня:', dayContent);
+
+      const dayData: ScheduleDay = {
+        day: dayNamesMap[dayAbbreviation],
+        pairs: []
+      };
+
+      // Обработка дней без пар
+      if (dayContent.trim() === '_') {
+        weekData.schedule.push(dayData);
+        return;
+      }
+
+      // Удаляем лишние символы
+      dayContent = dayContent.replace(/_$/, '').trim();
+
+      // Разделяем на отдельные пары (как обычные, так и с подгруппами)
+      const allPairs = splitIntoPairs(dayContent);
+      console.log('Все пары дня:', allPairs);
+
+      // Обрабатываем каждую пару
+      allPairs.forEach(pair => {
+        if (isSubgroupPair(pair)) {
+          // Для пар с подгруппами сохраняем как есть
+          dayData.pairs.push({ subject: pair.trim() });
+        } else {
+          // Для обычных пар разбиваем на составляющие
+          const parsedPair = parseRegularPair(pair);
+          if (parsedPair) {
+            dayData.pairs.push({ subject: parsedPair });
+          }
+        }
+      });
+
+      weekData.schedule.push(dayData);
+      console.log(`Результат обработки дня ${dayAbbreviation}:`, dayData);
+    });
+
+    result.push(weekData);
+    console.log(`Результат обработки недели ${weekNumber}:`, weekData);
+  });
+
+  console.log('\n=== РЕЗУЛЬТАТ ПАРСИНГА ===');
+  console.log(JSON.stringify(result, null, 2));
+  return result;
+}
+
+// Вспомогательные функции
+
+/** Определяет, является ли пара парой с подгруппами */
+function isSubgroupPair(pair: string): boolean {
+  return /(\d\s?п\/г)/.test(pair);
+}
+
+/** Разделяет содержимое дня на отдельные пары */
+function splitIntoPairs(content: string): string[] {
+  console.log('=== START splitIntoPairs ===');
+  console.log('Original content:', content);
   
+  content = content.replace(/_$/, '').trim();
+  console.log('After cleaning:', content);
+  
+  const pairs: string[] = [];
+  const tokens = content.split(/\s+/);
+  console.log('Tokens:', tokens);
+  
+  let i = 0;
+  while (i < tokens.length) {
+    console.log(`\nProcessing token ${i}: "${tokens[i]}"`);
+    
+    // Обработка пар с подгруппами
+    if (i + 1 < tokens.length && tokens[i] === '1' && tokens[i+1] === 'п/г') {
+      console.log('Found subgroup pair start');
+      let pairContent = '';
+      
+      // Собираем название предмета
+      let subjectTokens = [];
+      let j = i - 1;
+      while (j >= 0 && !isRoom(tokens[j])) {
+        subjectTokens.unshift(tokens[j]);
+        j--;
+      }
+      pairContent = subjectTokens.join(' ');
+      console.log('Subject name:', pairContent);
+      
+      // Добавляем подгруппы
+      pairContent += ` 1 п/г ${tokens[i+2]} ${tokens[i+3]} ${tokens[i+4]}`;
+      i += 5;
+      console.log('After 1st subgroup:', pairContent, 'New i:', i);
+      
+      // Проверяем вторую подгруппу
+      if (i + 1 < tokens.length && tokens[i] === '2' && tokens[i+1] === 'п/г') {
+        pairContent += ` 2 п/г ${tokens[i+2]} ${tokens[i+3]} ${tokens[i+4]}`;
+        i += 5;
+        console.log('After 2nd subgroup:', pairContent, 'New i:', i);
+      }
+      
+      pairs.push(pairContent);
+      console.log('Added subgroup pair:', pairContent);
+    }
+    // Обработка обычных пар
+    else {
+      console.log('Processing regular pair');
+      let pairContent = '';
+      let hasTeacher = false;
+      let hasRoom = false;
+      let teacherName = '';
+      
+      while (i < tokens.length) {
+        const token = tokens[i];
+        console.log(`Token ${i}: "${token}"`, 'Current pair:', pairContent);
+        
+        // Проверяем не начало ли это следующей пары с подгруппами
+        if (i + 1 < tokens.length && token === '1' && tokens[i+1] === 'п/г') {
+          console.log('Next token starts subgroup, breaking');
+          break;
+        }
+        
+        pairContent += (pairContent ? ' ' : '') + token;
+        console.log('Updated pairContent:', pairContent);
+        
+        // Проверяем специальные случаи названий
+        if (pairContent.includes('Физическая культура')) {
+          console.log('Found "Физическая культура"');
+          if (!hasTeacher && i + 1 < tokens.length) {
+            teacherName = tokens[i+1];
+            pairContent += ' ' + teacherName;
+            hasTeacher = true;
+            i++;
+            console.log('Added teacher:', teacherName, 'New i:', i);
+          }
+        }
+        // Проверяем стандартное ФИО преподавателя
+        else if (!hasTeacher && /^[А-ЯЁ][а-яё]+\.[А-ЯЁ]\.[А-ЯЁ]?\.?$/.test(token)) {
+          hasTeacher = true;
+          console.log('Found standard teacher:', token);
+        }
+        
+        // Проверяем аудиторию
+        if (!hasRoom && isRoom(token)) {
+          hasRoom = true;
+          console.log('Found room:', token);
+          i++;
+          break;
+        }
+        
+        i++;
+      }
+      
+      console.log('Finished processing pair:', {
+        pairContent,
+        hasTeacher,
+        hasRoom,
+        lastToken: tokens[i-1],
+        isRoomLast: isRoom(tokens[i-1])
+      });
+      
+      // Условия добавления пары
+      if ((pairContent && hasTeacher && hasRoom) ||
+          (pairContent.includes('Физическая культура') && hasRoom) ||
+          (pairContent && isRoom(tokens[i-1]))) {
+        pairs.push(pairContent);
+        console.log('✅ Added pair:', pairContent);
+      } else {
+        console.log('❌ Skipped pair:', pairContent, 'Reason:', 
+          !hasTeacher ? 'No teacher' : '', 
+          !hasRoom ? 'No room' : '');
+      }
+    }
+  }
+
+  console.log('=== FINAL PAIRS ===', pairs);
+  return pairs.filter(p => p.trim().length > 0);
+}
+
+/** Парсит обычную пару (без подгрупп) */
+function parseRegularPair(pair: string): string | null {
+  // Специальная обработка для Физической культуры
+  if (pair.startsWith('Физическая культура')) {
+    return pair;
+  }
+  
+  const match = pair.match(/^(.+?)\s+([А-ЯЁ][а-яё]+\s[А-ЯЁ]\.[А-ЯЁ]\.?)\s+(\d+[a-zA-Zа-яА-Я\/-]*)$/);
+  return match ? `${match[1]} ${match[2]} ${match[3]}` : pair;
+}
+
+/** Проверяет, является ли токен аудиторией */
+function isRoom(token: string): boolean {
+  // Расширенное регулярное выражение для аудиторий
+  const result = /^\d+[a-zA-Zа-яА-Я]*(?:\/\d+)?$/.test(token);
+  console.log(`isRoom("${token}") -> ${result}`);
+  return result;
+}
 
 const PdfParser: React.FC<PdfParserProps> = ({ group }) => {
   const [text, setText] = useState<string>(""); // Состояние для хранения текста
@@ -162,7 +285,7 @@ const PdfParser: React.FC<PdfParserProps> = ({ group }) => {
       if (!data.success) {
         throw new Error(data.error || 'Неизвестная ошибка');
       }
-
+      console.log(data.text);
       // Структурируем данные
       setText(data.schedule);
         const structuredData = parseSchedule(data.schedule);
