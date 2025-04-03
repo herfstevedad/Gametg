@@ -1,5 +1,5 @@
 import React from "react";
-import styles from "./Header.module.css";
+import styles from "./header.module.css";
 
 const Header: React.FC = () => {
   const currentDate = new Date().toLocaleDateString("ru-RU", {
