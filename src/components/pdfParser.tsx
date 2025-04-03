@@ -345,7 +345,7 @@ const PdfParser: React.FC<PdfParserProps> = ({ group }) => {
   const loadPdfData = async () => {
     setIsLoading(true);
     try {
-      const serverUrl = `http://localhost:3001/api/schedule/${group}`;
+      const serverUrl = `https://server-re9g.onrender.com/api/schedule/${group}`;
       console.log("Загрузка данных с сервера:", serverUrl);
 
       const response = await fetch(serverUrl);
