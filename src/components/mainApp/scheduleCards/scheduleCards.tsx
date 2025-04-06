@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import styles from "./ScheduleCards.module.css";
+import styles from "./scheduleCards.module.css";
 import { WeekSchedule } from "../../pdfParser";
 
 interface ScheduleCardProps {
