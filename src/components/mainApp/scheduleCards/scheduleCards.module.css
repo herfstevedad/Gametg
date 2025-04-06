@@ -1,34 +1,55 @@
-
-/* Стили для карточек */
 .cardsContainer {
-    display: flex;
-    flex-direction: column;
-    gap: 10px; /* Промежутки между карточками */
-    padding: 20px;
-  }
-  
-  .card {
-    display: flex;
-    flex-direction: column;
-    padding: 15px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    background-color: #f9f9f9;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-  
-  .time {
-    font-size: 18px;
-    font-weight: bold;
-    margin-bottom: 5px;
-  }
-  
-  .subject {
-    font-size: 16px;
-    margin-bottom: 5px;
-  }
-  
-  .location {
-    font-size: 14px;
-    color: #666;
-  }
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  user-select: none; /* Отключаем выделение текста */
+  overflow: hidden;
+  transition: transform 0.3s ease-in-out; /* Плавная анимация */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  min-height: 65vh;
+}
+
+.dayContent {
+  position: relative;
+  overflow: hidden;
+}
+
+.card {
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 8px;
+  background-color: #f2f2f2;
+  border-left: 4px solid #3498db;
+}
+
+.subject {
+  font-size: 16px;
+  margin-bottom: 4px;
+  font-weight: bold;
+}
+
+.teacherAndRoom {
+  font-size: 14px;
+  color: #666;
+}
+
+.subgroup {
+  margin-bottom: 4px;
+}
+
+.room {
+  color: #007bff;
+}
+
+/* Анимация свайпа */
+.swipe-left {
+  transform: translateX(-100%);
+  transition: transform 0.3s ease-in-out;
+}
+
+.swipe-right {
+  transform: translateX(100%);
+  transition: transform 0.3s ease-in-out;
+}

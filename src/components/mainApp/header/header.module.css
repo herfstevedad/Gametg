@@ -19,3 +19,17 @@
   .date {
     font-size: 16px;
   }
+
+  .weekButton {
+    padding: 8px 16px;
+    background-color: white;
+    color: #007bff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  
+  .weekButton:hover {
+    background-color: #f0f0f0;
+  }

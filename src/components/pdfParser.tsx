@@ -1,32 +1,40 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import styles from "./PdfParser.module.css";
 
 interface PdfParserProps {
   group: string | null;
+  onScheduleLoaded: (schedule: WeekSchedule[]) => void; // Callback для передачи данных
 }
 
 interface SchedulePair {
-  subject: string;
+  subjectName: string;
+  teacher: string;
+  room: string;
+}
+
+interface SubgroupPair {
+  subjectName: string;
+  subgroups: {
+    subgroup: string; // Например: "1 п/г"
+    teacher: string;
+    room: string;
+  }[];
 }
 
 interface ScheduleDay {
   day: string;
-  pairs: SchedulePair[];
+  pairs: (SchedulePair | SubgroupPair)[];
 }
 
-interface WeekSchedule {
+export interface WeekSchedule {
   week: string;
   schedule: ScheduleDay[];
 }
 
 function parseSchedule(text: string): WeekSchedule[] {
-  console.log('=== НАЧАЛО ПАРСИНГА ===');
-  console.log('Исходный текст:', text);
-
   // Нормализация текста
   text = text.replace(/\s+/g, ' ').trim();
   text = text.replace(/\u00A0/g, ' ');
-  console.log('Текст после нормализации:', text);
 
   // Словарь дней недели
   const dayNamesMap: Record<string, string> = {
@@ -41,16 +49,11 @@ function parseSchedule(text: string): WeekSchedule[] {
 
   // Разделяем текст на недели
   const weekSections = text.split('Неделя:').slice(1);
-  console.log(`Найдено недель: ${weekSections.length}`);
-
   const result: WeekSchedule[] = [];
 
-  weekSections.forEach((weekText, weekIndex) => {
-    console.log(`\n=== ОБРАБОТКА НЕДЕЛИ ${weekIndex + 1} ===`);
-
+  weekSections.forEach(weekText => {
     const weekNumberMatch = weekText.match(/(\d+-я)/);
     const weekNumber = weekNumberMatch?.[1] || '1-я';
-    console.log(`Номер недели: ${weekNumber}`);
 
     const weekData: WeekSchedule = {
       week: weekNumber,
@@ -60,13 +63,10 @@ function parseSchedule(text: string): WeekSchedule[] {
     // Ищем дни недели в тексте
     const dayRegex = new RegExp(`(${daysAbbreviations.join('|')})\\s*(.*?)(?=${daysAbbreviations.join('|')}|$)`, 'gs');
     const dayMatches = [...weekText.matchAll(dayRegex)];
-    console.log(`Найдено дней в неделе: ${dayMatches.length}`);
 
-    dayMatches.forEach((match, dayIndex) => {
+    dayMatches.forEach(match => {
       const dayAbbreviation = match[1];
       let dayContent = match[2].trim();
-      console.log(`\nОбработка дня ${dayIndex + 1}: ${dayAbbreviation}`);
-      console.log('Содержимое дня:', dayContent);
 
       const dayData: ScheduleDay = {
         day: dayNamesMap[dayAbbreviation],
@@ -82,66 +82,147 @@ function parseSchedule(text: string): WeekSchedule[] {
       // Удаляем лишние символы
       dayContent = dayContent.replace(/_$/, '').trim();
 
-      // Разделяем на отдельные пары (как обычные, так и с подгруппами)
+      // Разделяем на отдельные пары
       const allPairs = splitIntoPairs(dayContent);
-      console.log('Все пары дня:', allPairs);
 
       // Обрабатываем каждую пару
       allPairs.forEach(pair => {
+        console.log(`[Обработка пары] Начало обработки: "${pair}"`);
+
         if (isSubgroupPair(pair)) {
-          // Для пар с подгруппами сохраняем как есть
-          dayData.pairs.push({ subject: pair.trim() });
+          console.log('[Обработка пары] Обнаружена пара с подгруппой');
+          const parsedPair = parseRegularPair(pair);
+          if (parsedPair && 'subgroups' in parsedPair) {
+            console.log('[Обработка пары] Успешно структурирована пара с подгруппами:', parsedPair);
+            dayData.pairs.push(parsedPair);
+          } else {
+            console.log('[Обработка пары] Не удалось структурировать пару с подгруппами');
+            dayData.pairs.push({
+              subjectName: pair.trim(),
+              teacher: '',
+              room: ''
+            });
+          }
         } else {
-          // Для обычных пар разбиваем на составляющие
           const parsedPair = parseRegularPair(pair);
           if (parsedPair) {
-            dayData.pairs.push({ subject: parsedPair });
+            console.log('[Обработка пары] Успешно структурирована обычная пара:', parsedPair);
+            dayData.pairs.push(parsedPair);
+          } else {
+            console.log('[Обработка пары] Не удалось структурировать, сохраняем как есть');
+            dayData.pairs.push({
+              subjectName: pair.trim(),
+              teacher: '',
+              room: ''
+            });
           }
         }
       });
 
       weekData.schedule.push(dayData);
-      console.log(`Результат обработки дня ${dayAbbreviation}:`, dayData);
     });
 
     result.push(weekData);
-    console.log(`Результат обработки недели ${weekNumber}:`, weekData);
   });
 
-  console.log('\n=== РЕЗУЛЬТАТ ПАРСИНГА ===');
-  console.log(JSON.stringify(result, null, 2));
   return result;
 }
 
 // Вспомогательные функции
-
-/** Определяет, является ли пара парой с подгруппами */
 function isSubgroupPair(pair: string): boolean {
   return /(\d\s?п\/г)/.test(pair);
 }
 
-/** Разделяет содержимое дня на отдельные пары */
+function parseRegularPair(pair: string): SchedulePair | SubgroupPair | null {
+  // Улучшенная нормализация строки
+  pair = pair
+    .replace(/([А-ЯЁ])\.\s+([А-ЯЁ])\./g, '$1.$2.') // Убираем пробелы между инициалами
+    .replace(/([А-ЯЁ])\.([А-ЯЁ])\s?\.?/g, '$1.$2.') // Исправляем пропущенные точки
+    .replace(/\s+/g, ' ') // Убираем множественные пробелы
+    .trim();
+
+  console.log(`[parseRegularPair] Нормализованная строка: "${pair}"`);
+
+  // Проверяем, содержит ли строка подгруппы
+  const subgroupMatch = pair.match(/^(.+?)\s+(\d\s?п\/г\s+[А-ЯЁ][а-яё]+\s[А-ЯЁ]\.[А-ЯЁ]\.?\s+\d+[a-zA-Zа-яА-Я\/-]*)/);
+  if (subgroupMatch) {
+    const subjectName = subgroupMatch[1].trim();
+    console.log(`[parseRegularPair] Обнаружена пара с подгруппами. Предмет: "${subjectName}"`);
+
+    const subgroups: { subgroup: string; teacher: string; room: string }[] = [];
+
+    // Разделяем подгруппы
+    const subgroupParts = pair.split(/\s+(\d\s?п\/г)/).filter(Boolean);
+    console.log(`[parseRegularPair] Подгруппы найдены:`, subgroupParts);
+
+    for (let i = 1; i < subgroupParts.length; i += 2) {
+      const subgroupName = subgroupParts[i].trim(); // Например: "1 п/г"
+      const details = subgroupParts[i + 1].trim();
+      console.log(`[parseRegularPair] Обработка подгруппы ${subgroupName}: "${details}"`);
+
+      const [teacher, room] = details.split(/\s+(\d+[a-zA-Zа-яА-Я\/-]*)$/).filter(Boolean);
+      console.log(`[parseRegularPair] Преподаватель: "${teacher}", Аудитория: "${room}"`);
+
+      subgroups.push({
+        subgroup: subgroupName, // Используем только номер подгруппы
+        teacher: teacher.trim(),
+        room: room.trim()
+      });
+    }
+
+    return {
+      subjectName,
+      subgroups
+    };
+  }
+
+  // Специальная обработка для Физической культуры
+  if (pair.startsWith('Физическая культура')) {
+    const parts = pair.split(' ');
+    const teacher = parts[2] + ' ' + parts[3];
+    const room = parts.slice(4).join(' ');
+    return {
+      subjectName: 'Физическая культура',
+      teacher,
+      room
+    };
+  }
+
+  // Новое улучшенное регулярное выражение
+  const match = pair.match(/^(.+?)\s+([А-ЯЁ][а-яё]+(?:\s[А-ЯЁ]\.[А-ЯЁ]\.?)+)\s+(\d+[a-zA-Zа-яА-Я\/-]*)(?:\s|$)/);
+
+  if (!match) {
+    // Попробуем альтернативный вариант парсинга
+    const altMatch = pair.match(/^(.+?)\s+([А-ЯЁ][а-яё]+\s[А-ЯЁ]\.[А-ЯЁ]?\.?)\s*(\d+[a-zA-Zа-яА-Я\/-]*)$/);
+    if (altMatch) {
+      return {
+        subjectName: altMatch[1],
+        teacher: altMatch[2].replace(/\s+/g, ' ').trim(),
+        room: altMatch[3]
+      };
+    }
+
+    console.log('[parseRegularPair] Не удалось распарсить даже после нормализации');
+    return null;
+  }
+
+  return {
+    subjectName: match[1],
+    teacher: match[2].replace(/\s+/g, ' ').trim(),
+    room: match[3]
+  };
+}
+
 function splitIntoPairs(content: string): string[] {
-  console.log('=== START splitIntoPairs ===');
-  console.log('Original content:', content);
-  
   content = content.replace(/_$/, '').trim();
-  console.log('After cleaning:', content);
-  
   const pairs: string[] = [];
   const tokens = content.split(/\s+/);
-  console.log('Tokens:', tokens);
-  
+
   let i = 0;
   while (i < tokens.length) {
-    console.log(`\nProcessing token ${i}: "${tokens[i]}"`);
-    
-    // Обработка пар с подгруппами
-    if (i + 1 < tokens.length && tokens[i] === '1' && tokens[i+1] === 'п/г') {
-      console.log('Found subgroup pair start');
+    if (i + 1 < tokens.length && tokens[i] === '1' && tokens[i + 1] === 'п/г') {
       let pairContent = '';
-      
-      // Собираем название предмета
+
       let subjectTokens = [];
       let j = i - 1;
       while (j >= 0 && !isRoom(tokens[j])) {
@@ -149,249 +230,110 @@ function splitIntoPairs(content: string): string[] {
         j--;
       }
       pairContent = subjectTokens.join(' ');
-      console.log('Subject name:', pairContent);
-      
-      // Добавляем подгруппы
-      pairContent += ` 1 п/г ${tokens[i+2]} ${tokens[i+3]} ${tokens[i+4]}`;
+
+      pairContent += ` 1 п/г ${tokens[i + 2]} ${tokens[i + 3]} ${tokens[i + 4]}`;
       i += 5;
-      console.log('After 1st subgroup:', pairContent, 'New i:', i);
-      
-      // Проверяем вторую подгруппу
-      if (i + 1 < tokens.length && tokens[i] === '2' && tokens[i+1] === 'п/г') {
-        pairContent += ` 2 п/г ${tokens[i+2]} ${tokens[i+3]} ${tokens[i+4]}`;
+
+      if (i + 1 < tokens.length && tokens[i] === '2' && tokens[i + 1] === 'п/г') {
+        pairContent += ` 2 п/г ${tokens[i + 2]} ${tokens[i + 3]} ${tokens[i + 4]}`;
         i += 5;
-        console.log('After 2nd subgroup:', pairContent, 'New i:', i);
       }
-      
+
       pairs.push(pairContent);
-      console.log('Added subgroup pair:', pairContent);
-    }
-    // Обработка обычных пар
-    else {
-      console.log('Processing regular pair');
+    } else {
       let pairContent = '';
       let hasTeacher = false;
       let hasRoom = false;
-      let teacherName = '';
-      
+
       while (i < tokens.length) {
         const token = tokens[i];
-        console.log(`Token ${i}: "${token}"`, 'Current pair:', pairContent);
-        
-        // Проверяем не начало ли это следующей пары с подгруппами
-        if (i + 1 < tokens.length && token === '1' && tokens[i+1] === 'п/г') {
-          console.log('Next token starts subgroup, breaking');
+
+        if (i + 1 < tokens.length && token === '1' && tokens[i + 1] === 'п/г') {
           break;
         }
-        
+
         pairContent += (pairContent ? ' ' : '') + token;
-        console.log('Updated pairContent:', pairContent);
-        
-        // Проверяем специальные случаи названий
+
         if (pairContent.includes('Физическая культура')) {
-          console.log('Found "Физическая культура"');
           if (!hasTeacher && i + 1 < tokens.length) {
-            teacherName = tokens[i+1];
-            pairContent += ' ' + teacherName;
+            pairContent += ' ' + tokens[i + 1];
             hasTeacher = true;
             i++;
-            console.log('Added teacher:', teacherName, 'New i:', i);
           }
-        }
-        // Проверяем стандартное ФИО преподавателя
-        else if (!hasTeacher && /^[А-ЯЁ][а-яё]+\.[А-ЯЁ]\.[А-ЯЁ]?\.?$/.test(token)) {
+        } else if (!hasTeacher && /^[А-ЯЁ][а-яё]+\.[А-ЯЁ]\.[А-ЯЁ]?\.?$/.test(token)) {
           hasTeacher = true;
-          console.log('Found standard teacher:', token);
         }
-        
-        // Проверяем аудиторию
+
         if (!hasRoom && isRoom(token)) {
           hasRoom = true;
-          console.log('Found room:', token);
           i++;
           break;
         }
-        
+
         i++;
       }
-      
-      console.log('Finished processing pair:', {
-        pairContent,
-        hasTeacher,
-        hasRoom,
-        lastToken: tokens[i-1],
-        isRoomLast: isRoom(tokens[i-1])
-      });
-      
-      // Условия добавления пары
+
       if ((pairContent && hasTeacher && hasRoom) ||
-          (pairContent.includes('Физическая культура') && hasRoom) ||
-          (pairContent && isRoom(tokens[i-1]))) {
+        (pairContent.includes('Физическая культура') && hasRoom) ||
+        (pairContent && isRoom(tokens[i - 1]))) {
         pairs.push(pairContent);
-        console.log('✅ Added pair:', pairContent);
-      } else {
-        console.log('❌ Skipped pair:', pairContent, 'Reason:', 
-          !hasTeacher ? 'No teacher' : '', 
-          !hasRoom ? 'No room' : '');
       }
     }
   }
 
-  console.log('=== FINAL PAIRS ===', pairs);
   return pairs.filter(p => p.trim().length > 0);
 }
 
-/** Парсит обычную пару (без подгрупп) */
-function parseRegularPair(pair: string): string | null {
-  // Специальная обработка для Физической культуры
-  if (pair.startsWith('Физическая культура')) {
-    return pair;
-  }
-  
-  const match = pair.match(/^(.+?)\s+([А-ЯЁ][а-яё]+\s[А-ЯЁ]\.[А-ЯЁ]\.?)\s+(\d+[a-zA-Zа-яА-Я\/-]*)$/);
-  return match ? `${match[1]} ${match[2]} ${match[3]}` : pair;
-}
-
-/** Проверяет, является ли токен аудиторией */
 function isRoom(token: string): boolean {
-  // Расширенное регулярное выражение для аудиторий
-  const result = /^\d+[a-zA-Zа-яА-Я]*(?:\/\d+)?$/.test(token);
-  console.log(`isRoom("${token}") -> ${result}`);
-  return result;
+  return /^\d+[a-zA-Zа-яА-Я]*(?:\/\d+[a-zA-Zа-яА-Я]*)?$/.test(token);
 }
 
-// Новый компонент для отображения расписания
-const ScheduleViewer: React.FC<{ schedule: WeekSchedule[] }> = ({ schedule }) => {
-  const [currentWeekIndex, setCurrentWeekIndex] = useState(0);
-  
-  if (schedule.length === 0) return <div className={styles.noSchedule}>Расписание не загружено</div>;
-
-  const currentWeek = schedule[currentWeekIndex];
-
-  return (
-    <div className={styles.scheduleContainer}>
-      <div className={styles.weekSelector}>
-        {schedule.map((week, index) => (
-          <button
-            key={index}
-            onClick={() => setCurrentWeekIndex(index)}
-            className={currentWeekIndex === index ? styles.activeWeek : ''}
-          >
-            {week.week} неделя
-          </button>
-        ))}
-      </div>
-
-      <div className={styles.daysGrid}>
-        {currentWeek.schedule.map((day, index) => (
-          <div key={index} className={styles.dayCard}>
-            <h3 className={styles.dayHeader}>{day.day}</h3>
-            
-            {day.pairs.length > 0 ? (
-              <ul className={styles.pairsList}>
-                {day.pairs.map((pair, pairIndex) => {
-                  if (pair.subject.includes('п/г')) {
-                    const match = pair.subject.match(/^(.+?) 1 п\/г (.+?) 2 п\/г (.+)$/) || 
-                                 pair.subject.match(/^(.+?) 1 п\/г (.+?)$/);
-                    
-                    if (!match) return <li key={pairIndex} className={styles.pairItem}>{pair.subject}</li>;
-                    
-                    return (
-                      <li key={pairIndex} className={`${styles.pairItem} ${styles.subgroup}`}>
-                        <div className={styles.subject}>{match[1]}</div>
-                        <div className={styles.subgroups}>
-                          <div className={styles.subgroupItem}>
-                            <span className={styles.subgroupLabel}>1 подгруппа:</span>
-                            <span>{match[2]}</span>
-                          </div>
-                          {match[3] && (
-                            <div className={styles.subgroupItem}>
-                              <span className={styles.subgroupLabel}>2 подгруппа:</span>
-                              <span>{match[3]}</span>
-                            </div>
-                          )}
-                        </div>
-                      </li>
-                    );
-                  }
-                  
-                  const regularMatch = pair.subject.match(/^(.+?) (.+?) (\d+[a-zA-Zа-яА-Я\/-]*)$/);
-                  if (!regularMatch) return <li key={pairIndex} className={styles.pairItem}>{pair.subject}</li>;
-                  
-                  return (
-                    <li key={pairIndex} className={styles.pairItem}>
-                      <div className={styles.subject}>{regularMatch[1]}</div>
-                      <div className={styles.teacher}>{regularMatch[2]}</div>
-                      <div className={styles.room}>Ауд. {regularMatch[3]}</div>
-                    </li>
-                  );
-                })}
-              </ul>
-            ) : (
-              <p className={styles.noPairs}>Нет занятий</p>
-            )}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
-
-const PdfParser: React.FC<PdfParserProps> = ({ group }) => {
-  const [text, setText] = useState<string>("");
-  const [schedule, setSchedule] = useState<WeekSchedule[]>([]);
+const PdfParser: React.FC<PdfParserProps> = ({ group, onScheduleLoaded }) => {
   const [isLoading, setIsLoading] = useState(false);
+  const [schedule, setSchedule] = useState<WeekSchedule[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   const loadPdfData = async () => {
-    setIsLoading(true);
-    try {
-      const serverUrl = `https://server-re9g.onrender.com/api/schedule/${group}`;
-      console.log("Загрузка данных с сервера:", serverUrl);
+    if (!group) {
+      setError("Номер группы не указан");
+      return; 
+    }
 
-      const response = await fetch(serverUrl);
-      if (!response.ok) throw new Error(`Ошибка сети: ${response.status}`);
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch(`https://server-re9g.onrender.com/api/schedule/${group}`);
+      if (!response.ok) throw new Error(`Ошибка сервера: ${response.status}`);
 
       const data = await response.json();
-      if (!data.success) throw new Error(data.error || 'Неизвестная ошибка');
+      if (!data.success) throw new Error(data.error || 'Неизвестная ошибка сервера');
 
-      setText(data.schedule);
       const structuredData = parseSchedule(data.schedule);
       setSchedule(structuredData);
-    } catch (error) {
-      console.error("Ошибка при загрузке данных:", error);
-      setText("Не удалось загрузить данные.");
+
+      // Вызываем колбэк, если он передан
+      if (onScheduleLoaded) {
+        onScheduleLoaded(structuredData);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Неизвестная ошибка');
+      console.error("Ошибка при загрузке данных:", err);
     } finally {
       setIsLoading(false);
     }
   };
 
-  return (
-    <div className={styles.parserContainer}>
-      <button 
-        onClick={loadPdfData} 
-        disabled={isLoading}
-        className={styles.loadButton}
-      >
-        {isLoading ? 'Загрузка...' : 'Загрузить расписание'}
-      </button>
+  useEffect(() => {
+    if (group) {
+      loadPdfData();
+    }
+  }, [group]);
 
-      {isLoading ? (
-        <div className={styles.loading}>Загрузка данных...</div>
-      ) : (
-        <>
-          {/* Показываем структурированное расписание */}
-          {schedule.length > 0 && <ScheduleViewer schedule={schedule} />}
-          
-          {/* Опционально: показываем сырой текст для отладки */}
-          {process.env.NODE_ENV === 'development' && (
-            <details className={styles.debugInfo}>
-              <summary>Отладочная информация</summary>
-              <pre className={styles.textOutput}>{text}</pre>
-              <pre>{JSON.stringify(schedule, null, 2)}</pre>
-            </details>
-          )}
-        </>
-      )}
+  return (
+    <div className={styles.container}>
+      {error && <div className={styles.error}>{error}</div>}
+      {isLoading && <div className={styles.loading}>Загрузка...</div>}
     </div>
   );
 };
