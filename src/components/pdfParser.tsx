@@ -290,27 +290,21 @@ function isRoom(token: string): boolean {
 
 const PdfParser: React.FC<PdfParserProps> = ({ group, onScheduleLoaded }) => {
   const [isLoading, setIsLoading] = useState(false);
-  const [schedule, setSchedule] = useState<WeekSchedule[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   const loadPdfData = async () => {
     if (!group) {
       setError("Номер группы не указан");
-      return; 
+      return;
     }
-
     setIsLoading(true);
     setError(null);
-
     try {
       const response = await fetch(`https://server-re9g.onrender.com/api/schedule/${group}`);
       if (!response.ok) throw new Error(`Ошибка сервера: ${response.status}`);
-
       const data = await response.json();
       if (!data.success) throw new Error(data.error || 'Неизвестная ошибка сервера');
-
       const structuredData = parseSchedule(data.schedule);
-      setSchedule(structuredData);
 
       // Вызываем колбэк, если он передан
       if (onScheduleLoaded) {
