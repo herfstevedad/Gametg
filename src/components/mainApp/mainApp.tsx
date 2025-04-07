@@ -16,36 +16,34 @@ const MainApp: React.FC<MainAppProps> = ({ group }) => {
 
   useEffect(() => {
     if (group && schedule.length > 0) {
-      // Дата начала учебного года
-      const startDate = new Date(2025, 0, 1); // 1 января 2025
-      const currentDate = new Date(); // Фиксированная дата для тестирования
-
+      const currentDate = new Date(); // Текущая дата
+  
       console.log("[MainApp] Текущая дата:", currentDate);
-
+  
       // Определяем текущую неделю
-      const weekNumber = getCurrentWeekNumber(startDate, currentDate);
+      const weekNumber = getCurrentWeekNumber(currentDate);
       const weekParity = getWeekParity(weekNumber);
-
+  
       console.log("[MainApp] Номер недели:", weekNumber);
       console.log("[MainApp] Четность недели:", weekParity);
-
+  
       // Находим индекс текущей недели
       const weekIndex = schedule.findIndex((week) => week.week === weekParity);
       console.log("[MainApp] Индекс текущей недели:", weekIndex);
-
+  
       if (weekIndex !== -1) {
         setCurrentWeekIndex(weekIndex);
       }
-
+  
       // Определяем текущий день недели
       const currentDay = getCurrentDay(currentDate);
       console.log("[MainApp] Текущий день недели:", currentDay);
-
+  
       const dayIndex = schedule[weekIndex]?.schedule.findIndex(
         (day) => day.day === currentDay
       );
       console.log("[MainApp] Индекс текущего дня:", dayIndex);
-
+  
       if (dayIndex !== -1) {
         setCurrentDayIndex(dayIndex);
       }
@@ -87,23 +85,30 @@ const MainApp: React.FC<MainAppProps> = ({ group }) => {
 };
 
 // Функция для вычисления номера недели
-function getCurrentWeekNumber(startDate: Date, currentDate: Date): number {
-  const start = new Date(startDate);
-  const current = new Date(currentDate);
+function getCurrentWeekNumber(currentDate: Date): number {
+  // Клонируем дату, чтобы не менять исходную
+  const date = new Date(currentDate);
+  date.setHours(0, 0, 0, 0);
 
-  // Выравниваем начальную дату до ближайшего понедельника
-  const startDayOfWeek = start.getDay() || 7; // 1 (понедельник) - 7 (воскресенье)
-  const daysToFirstMonday = startDayOfWeek === 1 ? 0 : 8 - startDayOfWeek;
-  start.setDate(start.getDate() + daysToFirstMonday);
+  // Находим ближайший четверг (ISO неделя зависит от четверга)
+  const thursday = new Date(date);
+  thursday.setDate(date.getDate() + (3 - date.getDay() + 7) % 7);
 
-  // Вычисляем разницу в миллисекундах между датами
-  const diffInMilliseconds = current.getTime() - start.getTime();
-  const diffInDays = Math.floor(diffInMilliseconds / (1000 * 60 * 60 * 24));
+  // Находим первый четверг года
+  const firstDayOfYear = new Date(thursday.getFullYear(), 0, 1);
+  const firstThursday = new Date(firstDayOfYear);
+  firstThursday.setDate(firstDayOfYear.getDate() + (3 - firstDayOfYear.getDay() + 7) % 7);
 
-  // Вычисляем номер недели
+  // Если первый четверг года — в прошлом году, берем следующий
+  if (firstThursday.getFullYear() < thursday.getFullYear()) {
+    firstThursday.setDate(firstThursday.getDate() + 7);
+  }
+
+  // Разница в неделях
+  const diffInTime = thursday.getTime() - firstThursday.getTime();
+  const diffInDays = Math.floor(diffInTime / (1000 * 60 * 60 * 24));
   return Math.floor(diffInDays / 7) + 1;
 }
-
 // Функция для определения четности недели
 function getWeekParity(weekNumber: number): string {
   return weekNumber % 2 === 1 ? "1-я" : "2-я";
