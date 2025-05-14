@@ -1,0 +1,62 @@
+@import '../../../styles/variables.css';
+
+.container {
+  padding: 6px 16px;
+  background-color: white;
+  border-bottom: 1px solid #EEEEEE;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 12px;
+}
+
+.hasReplacements {
+  color: white;
+  background: linear-gradient(135deg, #6B4EFF 0%, #9747FF 100%);
+}
+
+.noReplacements {
+  color: #6B4EFF;
+  background-color: #EEEAF9;
+}
+
+.loading {
+  color: #666666;
+  background-color: #F0F0F0;
+}
+
+.error {
+  color: white;
+  background-color: #FF4D4D;
+}
+
+.notAvailable {
+  color: #666666;
+  background-color: #F0F0F0;
+}
+
+.lastChecked {
+  font-size: 12px;
+  color: #666666;
+  opacity: 0.8;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 1;
+  }
+} 

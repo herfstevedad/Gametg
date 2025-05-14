@@ -1,35 +1,88 @@
-/* Стили для головы */
-.header {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    background-color: #007bff; /* Синий фон */
-    border-radius: 15px;
-    color: white;
-    text-align: center;
-  }
-  
-  .title {
-    font-size: 24px;
-    margin-bottom: 10px;
-  }
-  
-  .date {
-    font-size: 16px;
-  }
+@import '../../../styles/variables.css';
 
-  .weekButton {
-    padding: 8px 16px;
+.header {
+    width: 100%;
     background-color: white;
-    color: #007bff;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    border-bottom: 1px solid #EEEEEE;
+}
+
+.content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    height: 56px;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: var(--content-max-width);
+    margin: 0 auto;
+}
+
+.content p {
+    font-size: 18px;
+    font-weight: 500;
+    color: #6B4EFF;
+    margin: 0;
+    flex-grow: 1;
+}
+
+.content button {
+    background-color: #EEEAF9;
+    color: #6B4EFF;
     border: none;
-    border-radius: 4px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 500;
     cursor: pointer;
-    font-weight: bold;
-  }
-  
-  .weekButton:hover {
-    background-color: #f0f0f0;
-  }
+    transition: all 0.2s ease;
+    min-width: 80px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border-radius: 8px;
+}
+
+.content button:hover {
+    background-color: #E5E0F9;
+}
+
+.content button:active {
+    background-color: #DDD6F9;
+}
+
+.group {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.group button {
+    width: 100%;
+    height: 40%;
+    background-color: #ffffff98;
+    border-radius: 10px;
+    border: none;
+}
+
+button {
+    background-color: #ffffff00;
+    border: none;
+    cursor: pointer;
+};
+
+.groupButton {
+    background-color: var(--primary-color);
+    color: var(--text-light);
+    border: none;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--border-radius-md);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    min-width: 80px;
+    text-align: center;
+}

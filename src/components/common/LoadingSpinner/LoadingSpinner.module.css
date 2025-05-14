@@ -1,0 +1,44 @@
+@import '../../../styles/variables.css';
+
+.spinnerContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-md);
+}
+
+.spinner {
+  border: 3px solid var(--background-secondary);
+  border-top-color: var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.text {
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  margin: 0;
+}
+
+/* Размеры спиннера */
+.small .spinner {
+  width: 24px;
+  height: 24px;
+}
+
+.medium .spinner {
+  width: 36px;
+  height: 36px;
+}
+
+.large .spinner {
+  width: 48px;
+  height: 48px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+} 
