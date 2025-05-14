@@ -23,8 +23,8 @@ const PdfParser: React.FC<PdfParserProps> = ({ group, onScheduleLoaded }) => {
     setError(null);
     try {
       const [scheduleResponse, replacementsResponse] = await Promise.all([
-        fetch(`http://localhost:3001/api/schedule/${group}`),
-        fetch(`http://localhost:3001/api/replacements/${group}`)
+        fetch(`https://server-re9g.onrender.com/api/schedule/${group}`),
+        fetch(`https://server-re9g.onrender.com/api/replacements/${group}`)
       ]);
       if (!scheduleResponse.ok)
         throw new Error(`Ошибка сервера: ${scheduleResponse.status}`);

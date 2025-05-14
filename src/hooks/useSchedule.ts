@@ -404,7 +404,7 @@ export const useSchedule = (group: string): UseScheduleResult => {
   const checkReplacements = useCallback(async () => {
     try {
       setReplacementsStatus('loading');
-      const response = await fetch(`http://localhost:3001/api/replacements/${group}`);
+      const response = await fetch(`https://server-re9g.onrender.com/api/replacements/${group}`);
       
       if (!response.ok) {
         throw new Error(`Ошибка сервера: ${response.status}`);
