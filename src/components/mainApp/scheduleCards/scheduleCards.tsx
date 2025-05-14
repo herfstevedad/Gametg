@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import styles from "./ScheduleCards.module.css";
+import styles from "./scheduleCards.module.css";
 import { useSchedule } from "../../../hooks/useSchedule";
 import LoadingSpinner from "../../common/LoadingSpinner/LoadingSpinner";
 import ErrorMessage from "../../common/ErrorMessage/ErrorMessage";
