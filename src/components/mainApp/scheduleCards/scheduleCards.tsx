@@ -158,7 +158,7 @@ const ScheduleCards: React.FC<ScheduleCardsProps> = ({ group }) => {
       />
       <div className={styles.weekNavigation}>
         <div className={styles.weekSwitcher}>
-          {weeks?.map((week, index) => {
+          {weeks?.map((_, index) => {
             const weekDates = getWeekDates(index);
             return (
               <button

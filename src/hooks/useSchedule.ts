@@ -67,11 +67,6 @@ interface ReplacementData {
   rows: ReplacementRow[];
 }
 
-interface ReplacementsResponse {
-  success: boolean;
-  replacements: ReplacementData[];
-}
-
 type ReplacementsStatus = 'loading' | 'no_replacements' | 'has_replacements' | 'error' | 'not_available';
 
 interface UseScheduleResult {
@@ -405,25 +400,6 @@ export const useSchedule = (group: string): UseScheduleResult => {
       setIsLoading(false);
     }
   }, [group]);
-
-  const getDayOffset = (dayName: string, currentDayOfWeek: number): number => {
-    const dayMap: { [key: string]: number } = {
-      'Понедельник': 0,
-      'Вторник': 1,
-      'Среда': 2,
-      'Четверг': 3,
-      'Пятница': 4,
-      'Суббота': 5,
-      'Воскресенье': 6
-    };
-
-    const targetDay = dayMap[dayName];
-    if (targetDay === undefined) return 0;
-
-    let offset = targetDay - currentDayOfWeek;
-    if (offset < 0) offset += 7;
-    return offset;
-  };
 
   const checkReplacements = useCallback(async () => {
     try {
