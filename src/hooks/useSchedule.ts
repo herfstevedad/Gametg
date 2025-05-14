@@ -407,10 +407,25 @@ export const useSchedule = (group: string): UseScheduleResult => {
       const response = await fetch(`https://server-re9g.onrender.com/api/replacements/${group}`);
       
       if (!response.ok) {
-        throw new Error(`Ошибка сервера: ${response.status}`);
+        const errorText = await response.text();
+        console.error('Ошибка получения замен:', {
+          status: response.status,
+          statusText: response.statusText,
+          errorText,
+          group
+        });
+        throw new Error(`Ошибка сервера при получении замен: ${response.status} - ${errorText}`);
       }
       
-      const replacementsData = await response.json();
+      const replacementsData = await response.json().catch(error => {
+        console.error('Ошибка парсинга JSON замен:', error);
+        throw new Error('Некорректный формат данных замен');
+      });
+
+      if (!replacementsData) {
+        throw new Error("Данные о заменах отсутствуют");
+      }
+
       localStorage.setItem(`replacements_${group}`, JSON.stringify(replacementsData));
       
       const processedReplacements = processReplacements(replacementsData);
@@ -420,6 +435,7 @@ export const useSchedule = (group: string): UseScheduleResult => {
     } catch (error) {
       console.error("Ошибка при проверке замен:", error);
       setReplacementsStatus('error');
+      throw error; // Пробрасываем ошибку дальше для обработки в компоненте
     }
   }, [group]);
 

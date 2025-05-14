@@ -26,17 +26,41 @@ const PdfParser: React.FC<PdfParserProps> = ({ group, onScheduleLoaded }) => {
         fetch(`https://server-re9g.onrender.com/api/schedule/${group}`),
         fetch(`https://server-re9g.onrender.com/api/replacements/${group}`)
       ]);
-      if (!scheduleResponse.ok)
-        throw new Error(`Ошибка сервера: ${scheduleResponse.status}`);
-      if (!replacementsResponse.ok)
-        throw new Error(`Ошибка сервера: ${replacementsResponse.status}`);
+
+      if (!scheduleResponse.ok) {
+        const errorText = await scheduleResponse.text();
+        console.error('Ошибка получения расписания:', {
+          status: scheduleResponse.status,
+          statusText: scheduleResponse.statusText,
+          errorText
+        });
+        throw new Error(`Ошибка сервера при получении расписания: ${scheduleResponse.status} - ${errorText}`);
+      }
+
+      if (!replacementsResponse.ok) {
+        const errorText = await replacementsResponse.text();
+        console.error('Ошибка получения замен:', {
+          status: replacementsResponse.status,
+          statusText: replacementsResponse.statusText,
+          errorText
+        });
+        throw new Error(`Ошибка сервера при получении замен: ${replacementsResponse.status} - ${errorText}`);
+      }
 
       const [scheduleData, replacementsData] = await Promise.all([
-        scheduleResponse.json(),
-        replacementsResponse.json()
+        scheduleResponse.json().catch(error => {
+          console.error('Ошибка парсинга JSON расписания:', error);
+          throw new Error('Некорректный формат данных расписания');
+        }),
+        replacementsResponse.json().catch(error => {
+          console.error('Ошибка парсинга JSON замен:', error);
+          throw new Error('Некорректный формат данных замен');
+        })
       ]);
-      if (!scheduleData)
-        throw new Error("Неизвестная ошибка сервера");
+
+      if (!scheduleData) {
+        throw new Error("Данные расписания отсутствуют");
+      }
 
       localStorage.setItem(storageKey, JSON.stringify(scheduleData));
       localStorage.setItem(replacementsStorageKey, JSON.stringify(replacementsData));
@@ -52,7 +76,8 @@ const PdfParser: React.FC<PdfParserProps> = ({ group, onScheduleLoaded }) => {
         onScheduleLoaded(combinedData);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Неизвестная ошибка");
+      const errorMessage = err instanceof Error ? err.message : "Неизвестная ошибка";
+      setError(errorMessage);
       console.error("Ошибка при загрузке данных:", err);
     } finally {
       setIsLoading(false);
